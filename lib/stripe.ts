@@ -1,6 +1,8 @@
 import Stripe from "stripe";
 
-export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+function getStripe() {
+  return new Stripe(process.env.STRIPE_SECRET_KEY!);
+}
 
 export async function createOrRetrieveCustomer(userId: string, email: string) {
   const { createAdminClient } = await import("@/lib/supabase/server");
@@ -16,7 +18,7 @@ export async function createOrRetrieveCustomer(userId: string, email: string) {
     return subscription.stripe_customer_id;
   }
 
-  const customer = await stripe.customers.create({
+  const customer = await getStripe().customers.create({
     email,
     metadata: { supabase_user_id: userId },
   });
@@ -37,7 +39,7 @@ export async function createCheckoutSession(
 ) {
   const customerId = await createOrRetrieveCustomer(userId, email);
 
-  const session = await stripe.checkout.sessions.create({
+  const session = await getStripe().checkout.sessions.create({
     customer: customerId,
     mode: "subscription",
     payment_method_types: ["card"],
@@ -54,7 +56,7 @@ export async function createCheckoutSession(
 }
 
 export async function createPortalSession(customerId: string, returnUrl: string) {
-  const session = await stripe.billingPortal.sessions.create({
+  const session = await getStripe().billingPortal.sessions.create({
     customer: customerId,
     return_url: `${returnUrl}/billing`,
   });
