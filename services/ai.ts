@@ -1,7 +1,9 @@
 import OpenAI from "openai";
 import type { Platform, Tone, GeneratedContent } from "@/types";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+function getOpenAI() {
+  return new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+}
 
 const PLATFORM_CONTEXT: Record<Platform, string> = {
   instagram: "Instagram post (visual-first, story-driven, use emojis, 2200 char limit)",
@@ -49,7 +51,7 @@ Rules:
 - For LinkedIn: make it educational/insightful
 - For Instagram: use 3-5 relevant emojis naturally`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.8,
@@ -77,7 +79,7 @@ Previous caption (avoid repeating): "${previousCaption}"
 
 Return ONLY the caption text, nothing else.`;
 
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
     temperature: 0.9,
